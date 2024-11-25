@@ -39,6 +39,7 @@ export const Signup = async (req, res, next) => {
     });
 
     return res.status(201).json({
+      message:"Registered successfully!",
       user: {
         id: user.id,
         email: user.email,
@@ -89,6 +90,7 @@ export const Login = async (req, res, next) => {
     });
 
     return res.status(200).json({
+      message:"Successfully logged in!",
       user: {
         id: existingUser.id,
         email: existingUser.email,
@@ -223,6 +225,19 @@ export const RemoveProfileImage = async (req, res, next) => {
     return res.status(200).json({
       message: "image removed",
     });
+  } catch (err) {
+    console.log("this is err:", err);
+    return res.status(500).send("Internal server error");
+  }
+};
+export const Logout = async (req, res, next) => {
+  
+  try {
+   res.cookie("jwt","",{maxAge:1, secure:true, sameSite:"None"})
+   return res.status(200).json({
+    status: "success",
+    message: "Logged out successfully",
+   })
   } catch (err) {
     console.log("this is err:", err);
     return res.status(500).send("Internal server error");
