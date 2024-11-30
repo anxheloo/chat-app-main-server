@@ -8,6 +8,7 @@ import authRoutes from "./routes/AuthRoutes.js";
 import contactsRoutes from "./routes/ContactsRoutes.js";
 import messagesRoutes from "./routes/MessagesRoutes.js";
 import setupSocket from "./socket.js";
+import channelRoutes from "./routes/ChannelRoutes.js";
 
 //2. config .env
 dotenv.config();
@@ -36,6 +37,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/contacts", contactsRoutes);
 app.use("/api/messages", messagesRoutes);
+app.use("/api/channels", channelRoutes);
 
 //5. start server
 const server = app.listen(port, () => {
