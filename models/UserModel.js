@@ -1,41 +1,44 @@
 import { genSalt, hash } from "bcrypt";
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: [true, "Email is required"],
-    unique: true,
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      unique: true,
+    },
+    pin: {
+      type: String,
+      required: [true, "Pin is required"],
+    },
+    avatar: {
+      type: Number,
+      default: 0,
+    },
+    // lastName: {
+    //   type: String,
+    //   required: false,
+    // },
+    // image: {
+    //   type: String,
+    //   required: false,
+    // },
+    // color: {
+    //   type: Number,
+    //   required: false,
+    // },
+    // profileSetup: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-  },
-  firstName: {
-    type: String,
-    required: false,
-  },
-  lastName: {
-    type: String,
-    required: false,
-  },
-  image: {
-    type: String,
-    required: false,
-  },
-  color: {
-    type: Number,
-    required: false,
-  },
-  profileSetup: {
-    type: Boolean,
-    default: false,
-  },
-});
+  { timestamps: true }
+);
 
 userSchema.pre("save", async function (next) {
   const salt = await genSalt();
-  this.password = await hash(this.password, salt);
+  this.pin = await hash(this.pin, salt);
   next();
 });
 

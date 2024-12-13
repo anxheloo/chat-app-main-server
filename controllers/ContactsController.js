@@ -20,11 +20,8 @@ export const Search = async (req, res, next) => {
     const regex = new RegExp(sanitizedSearchTerm, "i");
 
     const contacts = await User.find({
-      $and: [
-        { _id: { $ne: req.userId } },
-        { $or: [{ firstName: regex }, { lastName: regex }, { email: regex }] },
-      ],
-    });
+      $and: [{ _id: { $ne: req.userId } }, { $or: [{ username: regex }] }],
+    }).select("username _id avatar");
 
     return res.status(200).json({
       contacts,
@@ -78,14 +75,20 @@ export const getContactsForDm = async (req, res, next) => {
       },
 
       {
+        // $project: {
+        //   _id: 1,
+        //   lastMessageTime: 1,
+        //   email: "$contactInfo.email",
+        //   firstName: "$contactInfo.firstName",
+        //   lastName: "$contactInfo.lastName",
+        //   image: "$contactInfo.image",
+        //   color: "$contactInfo.color",
+        // },
         $project: {
           _id: 1,
           lastMessageTime: 1,
-          email: "$contactInfo.email",
-          firstName: "$contactInfo.firstName",
-          lastName: "$contactInfo.lastName",
-          image: "$contactInfo.image",
-          color: "$contactInfo.color",
+          username: "$contactInfo.username",
+          avatar: "$contactInfo.avatar",
         },
       },
 
@@ -107,12 +110,13 @@ export const getAllContacts = async (req, res, next) => {
   try {
     const users = await User.find(
       { _id: { $ne: req.userId } },
-      "firstName lastName _id email"
+      "username _id avatar"
     );
 
     const contacts = users.map((user) => ({
-      label: user.firstName ? `${user.firstName} ${user.lastName}` : user.email,
-      value: user._id
+      label: user.username,
+      value: user._id,
+      avatar: user.avatar,
     }));
 
     return res.status(200).json({

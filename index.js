@@ -21,7 +21,7 @@ const databaseURl = process.env.DATABASE_URL;
 // 4. add middlewares
 app.use(
   cors({
-    origin: [process.env.ORIGIN],
+    origin: [process.env.ORIGIN, "http://<your-ip>:19000"],
     // origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
@@ -31,7 +31,7 @@ app.use(
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/files", express.static("uploads/files"));
 
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -44,7 +44,7 @@ const server = app.listen(port, () => {
   console.log("Server is running on port: ", port);
 });
 
-setupSocket(server)
+setupSocket(server);
 
 //6. connect to db
 mongoose
