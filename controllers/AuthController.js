@@ -15,6 +15,8 @@ export const Signup = async (req, res, next) => {
     // 1. get email and password than user has sent
     const { email, password } = req.body;
 
+    console.log("this is email:", email, "this is password:", password);
+
     // 2. if something is missing return error
     if (!email || !password) {
       return res.status(400).send("Email and Password is required");
@@ -31,6 +33,8 @@ export const Signup = async (req, res, next) => {
     // 3. else create the user with given details
     const user = await User.create({ email, password });
 
+    console.log("this is user:", user);
+
     // 4. set the cookie for the successful registered user
     res.cookie("jwt", createToken(email, user._id), {
       maxAge,
@@ -39,7 +43,7 @@ export const Signup = async (req, res, next) => {
     });
 
     return res.status(201).json({
-      message:"Registered successfully!",
+      message: "Registered successfully!",
       user: {
         id: user.id,
         email: user.email,
@@ -90,7 +94,7 @@ export const Login = async (req, res, next) => {
     });
 
     return res.status(200).json({
-      message:"Successfully logged in!",
+      message: "Successfully logged in!",
       user: {
         id: existingUser.id,
         email: existingUser.email,
@@ -231,13 +235,12 @@ export const RemoveProfileImage = async (req, res, next) => {
   }
 };
 export const Logout = async (req, res, next) => {
-  
   try {
-   res.cookie("jwt","",{maxAge:1, secure:true, sameSite:"None"})
-   return res.status(200).json({
-    status: "success",
-    message: "Logged out successfully",
-   })
+    res.cookie("jwt", "", { maxAge: 1, secure: true, sameSite: "None" });
+    return res.status(200).json({
+      status: "success",
+      message: "Logged out successfully",
+    });
   } catch (err) {
     console.log("this is err:", err);
     return res.status(500).send("Internal server error");
