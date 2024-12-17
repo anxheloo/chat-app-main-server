@@ -9,8 +9,8 @@ import {
 // 1. initialize route
 const contactsRoutes = Router();
 
-// contactsRoutes.post("/search", verifyToken,  Search);
-contactsRoutes.post("/search", Search);
+contactsRoutes.post("/search", verifyToken, Search);
+// contactsRoutes.post("/search", Search);
 contactsRoutes.get("/get-contacts-for-dm", verifyToken, getContactsForDm);
 contactsRoutes.get("/get-all-contacts", verifyToken, getAllContacts);
 

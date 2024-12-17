@@ -7,6 +7,7 @@ const setupSocket = (server) => {
   const io = new ServerIOSocket(server, {
     cors: {
       origin: process.env.ORIGIN,
+      // origin: "*",
       methods: ["GET", "POST"],
     },
     pingTimeout: 10000, // Disconnect if no heartbeat within 10 seconds
@@ -59,7 +60,7 @@ const setupSocket = (server) => {
     }
 
     socket.on("sendMessage", sendMessage);
-    socket.on("sendChannelMessage", sendChannelMessage);
+    // socket.on("sendChannelMessage", sendChannelMessage);
     socket.on("disconnect", () => disconnect(socket));
   });
 };

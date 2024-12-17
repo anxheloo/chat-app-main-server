@@ -24,9 +24,16 @@ app.use(
     origin: [process.env.ORIGIN, "http://<your-ip>:19000"],
     // origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
+    // credentials: true,
   })
 );
+
+// app.use(
+//   cors({
+//     origin: "*",
+//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//   })
+// );
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/files", express.static("uploads/files"));

@@ -3,9 +3,9 @@ import {
   Login,
   Signup,
   UserInfo,
-  UpdateProfile,
-  UpdateImage,
-  RemoveProfileImage,
+  // UpdateProfile,
+  // UpdateImage,
+  // RemoveProfileImage,
   Logout,
 } from "../controllers/AuthController.js";
 import { verifyToken } from "../middlewares/AuthMiddleware.js";

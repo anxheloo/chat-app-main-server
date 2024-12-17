@@ -52,7 +52,7 @@ export const Login = async (req, res, next) => {
 
     // 2. if something is missing return error
     if (!username || !pin) {
-      return res.status(400).send("Username and Pin is required");
+      return res.status(400).json({ message: "Username and Pin is required" });
     }
 
     //   3. find if user exists
@@ -78,7 +78,7 @@ export const Login = async (req, res, next) => {
       token: createToken(username, existingUser._id),
       user: {
         id: existingUser.id,
-        username: existingUser.email,
+        username: existingUser.username,
         avatar: existingUser.avatar,
       },
     });
