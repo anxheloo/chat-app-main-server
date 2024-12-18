@@ -20,7 +20,7 @@ export const getMessages = async (req, res, next) => {
       ],
     }).sort({ timestamp: 1 });
 
-    console.log("this is messages:", messages);
+    // console.log("this is messages:", messages);
 
     return res.status(200).json({
       messages,
@@ -36,6 +36,13 @@ export const uploadFiles = async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({
         message: "File required",
+      });
+    }
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (req.file.size > MAX_FILE_SIZE) {
+      return res.status(400).json({
+        message: "File size exceeds the maximum allowed limit of 10MB.",
       });
     }
 

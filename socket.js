@@ -29,6 +29,8 @@ const setupSocket = (server) => {
   };
 
   const sendMessage = async (message) => {
+    console.log("Inside send message");
+
     // get sender and recipient socket id
     const senderSocketId = userSocketMap.get(message.sender);
     const recipientSocketId = userSocketMap.get(message.recipient);
@@ -38,6 +40,9 @@ const setupSocket = (server) => {
     const messageData = await Message.findById(createdMessage._id)
       .populate("sender", "_id username avatar")
       .populate("recipient", "_id username avatar");
+
+    console.log("messageData", messageData);
+    console.log("messageData._id", messageData._id);
 
     //
     if (recipientSocketId) {
