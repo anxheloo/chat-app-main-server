@@ -5,7 +5,12 @@ export const getMessages = async (req, res, next) => {
   try {
     const user1 = req.userId;
     const user2 = req.body.id;
-    const { user } = req.body;
+    const page = req.body.page;
+
+    console.log("This is page:", page);
+
+    const limit = 20;
+    const skip = page * limit;
 
     if (!user1 || !user2) {
       return res.status(400).json({
@@ -18,12 +23,50 @@ export const getMessages = async (req, res, next) => {
         { sender: user1, recipient: user2 },
         { sender: user2, recipient: user1 },
       ],
-    }).sort({ timestamp: 1 });
+    })
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .skip(skip);
 
-    // console.log("this is messages:", messages);
+    // Check if there are more messages to fetch
+    // const totalMessages = await Message.countDocuments({
+    //   $or: [
+    //     { sender: user1, recipient: user2 },
+    //     { sender: user2, recipient: user1 },
+    //   ],
+    // });
+
+    // const hasMore = (page + 1) * limit < totalMessages;
+
+    // const hasMoreMessages = await Message.find({
+    //   $or: [
+    //     { sender: user1, recipient: user2 },
+    //     { sender: user2, recipient: user1 },
+    //   ],
+    // })
+    //   .sort({ timestamp: -1 })
+    //   .skip((page + 1) * limit)
+    //   .limit(1);
+
+    // const hasMore = hasMoreMessages.length > 0;
+
+    // Check if there are more messages
+    const nextBatch = await Message.find({
+      $or: [
+        { sender: user1, recipient: user2 },
+        { sender: user2, recipient: user1 },
+      ],
+    })
+      .sort({ timestamp: -1 })
+      .skip(skip + limit)
+      .limit(1);
+
+    const hasMore = nextBatch.length > 0;
 
     return res.status(200).json({
-      messages,
+      messages: messages.reverse(),
+      // messages: messages,
+      hasMore,
     });
   } catch (err) {
     console.log("this is err:", err);
@@ -48,11 +91,11 @@ export const uploadFiles = async (req, res, next) => {
 
     const date = Date.now();
 
-    // let fileDir = `uploads/files`
-    // let filename = `${fileDir}/${date}` + `${req.file.originalname}`
+    let fileDir = `uploads/files`;
+    let filename = `${fileDir}/${date}` + `${req.file.originalname}`;
 
-    let fileDir = `uploads/files/${date}`;
-    let filename = `${fileDir}/${req.file.originalname}`;
+    // let fileDir = `uploads/files/${date}`;
+    // let filename = `${fileDir}/${req.file.originalname}`;
 
     mkdirSync(fileDir, { recursive: true });
 

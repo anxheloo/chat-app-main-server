@@ -58,6 +58,9 @@ export const getContactsForDm = async (req, res, next) => {
           },
 
           lastMessageTime: { $first: "$timestamp" },
+          lastMessageContent: { $first: "$content" },
+          lastMessageType: { $first: "$messageType" },
+          lastMessageFileUrl: { $first: "$fileUrl" },
         },
       },
 
@@ -87,6 +90,9 @@ export const getContactsForDm = async (req, res, next) => {
         $project: {
           _id: 1,
           lastMessageTime: 1,
+          lastMessageContent: 1,
+          lastMessageType: 1,
+          lastMessageFileUrl: 1,
           username: "$contactInfo.username",
           avatar: "$contactInfo.avatar",
         },
