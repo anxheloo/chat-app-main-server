@@ -19,21 +19,21 @@ const port = process.env.PORT || 5001;
 const databaseURl = process.env.DATABASE_URL;
 
 // 4. add middlewares
-app.use(
-  cors({
-    origin: [process.env.ORIGIN, "http://<your-ip>:19000"],
-    // origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    // credentials: true,
-  })
-);
-
 // app.use(
 //   cors({
-//     origin: "*",
+//     origin: [process.env.ORIGIN, "http://<your-ip>:19000"],
+//     // origin: "http://localhost:3000",
 //     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//     // credentials: true,
 //   })
 // );
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+);
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/files", express.static("uploads/files"));

@@ -1,5 +1,5 @@
 import Message from "../models/MessagesModel.js";
-import { mkdirSync, renameSync } from "fs";
+import { mkdirSync, renameSync, unlinkSync } from "fs";
 
 export const getMessages = async (req, res, next) => {
   try {
@@ -28,28 +28,6 @@ export const getMessages = async (req, res, next) => {
       .limit(limit)
       .skip(skip);
 
-    // Check if there are more messages to fetch
-    // const totalMessages = await Message.countDocuments({
-    //   $or: [
-    //     { sender: user1, recipient: user2 },
-    //     { sender: user2, recipient: user1 },
-    //   ],
-    // });
-
-    // const hasMore = (page + 1) * limit < totalMessages;
-
-    // const hasMoreMessages = await Message.find({
-    //   $or: [
-    //     { sender: user1, recipient: user2 },
-    //     { sender: user2, recipient: user1 },
-    //   ],
-    // })
-    //   .sort({ timestamp: -1 })
-    //   .skip((page + 1) * limit)
-    //   .limit(1);
-
-    // const hasMore = hasMoreMessages.length > 0;
-
     // Check if there are more messages
     const nextBatch = await Message.find({
       $or: [
@@ -67,6 +45,46 @@ export const getMessages = async (req, res, next) => {
       messages: messages.reverse(),
       // messages: messages,
       hasMore,
+    });
+  } catch (err) {
+    console.log("this is err:", err);
+    return res.status(500).send("Internal server error");
+  }
+};
+
+export const deleteMessage = async (req, res, next) => {
+  const { msgId } = req.body;
+
+  console.log("INside deleteMessage with id:", msgId);
+
+  try {
+    const message = await Message.findById(msgId);
+
+    console.log("This is message inside deleteMessage: ", message);
+
+    if (!message) {
+      return res.status(404).json({
+        message: "Message not found",
+      });
+    }
+
+    // Check if the message contains an image and delete the image file
+    if (message.messageType === "file") {
+      // await unlinkSync(message.fileUrl);
+
+      console.log("Message is a file");
+
+      try {
+        unlinkSync(message.fileUrl);
+      } catch (err) {
+        console.log("this is err:", err);
+      }
+    }
+
+    await Message.findByIdAndDelete(msgId);
+
+    return res.status(200).json({
+      message: "Message deleted successfully",
     });
   } catch (err) {
     console.log("this is err:", err);
