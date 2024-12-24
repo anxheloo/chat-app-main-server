@@ -16,6 +16,23 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    dissappearingMessages: {
+      type: String,
+      enum: [
+        "none",
+        "30 seconds",
+        "5 minutes",
+        "30 minutes",
+        "1 hour",
+        "8 hours",
+        "1 day",
+        "1 week",
+        "1 month",
+      ],
+      default: "none",
+    },
+
     // lastName: {
     //   type: String,
     //   required: false,

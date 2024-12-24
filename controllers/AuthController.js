@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/UserModel.js";
 import { compare } from "bcrypt";
-import { renameSync, unlinkSync } from "fs";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
@@ -38,6 +37,7 @@ export const Signup = async (req, res, next) => {
         id: user.id,
         username: user.username,
         avatar: user.avatar,
+        dissappearingMessages: user.dissappearingMessages,
       },
     });
   } catch (err) {
@@ -46,6 +46,8 @@ export const Signup = async (req, res, next) => {
   }
 };
 export const Login = async (req, res, next) => {
+  console.log("Inside login");
+
   try {
     // 1. get username and pin than user has sent
     const { username, pin } = req.body;
@@ -80,6 +82,7 @@ export const Login = async (req, res, next) => {
         id: existingUser.id,
         username: existingUser.username,
         avatar: existingUser.avatar,
+        dissappearingMessages: existingUser.dissappearingMessages,
       },
     });
   } catch (err) {
@@ -107,117 +110,129 @@ export const UserInfo = async (req, res, next) => {
     return res.status(500).send("Internal server error");
   }
 };
-// export const UpdateProfile = async (req, res, next) => {
-//   try {
-//     const { userId } = req;
-//     const { firstName, lastName, color } = req.body;
 
-//     if (!firstName || !lastName) {
-//       return res.status(400).json({
-//         message: "First name , last name or color is requred!",
-//       });
-//     }
-
-//     const user = await User.findByIdAndUpdate(
-//       userId,
-//       {
-//         firstName,
-//         lastName,
-//         color,
-//         profileSetup: true,
-//       },
-//       { new: true, runValidators: true }
-//     );
-
-//     return res.status(200).json({
-//       id: user.id,
-//       email: user.email,
-//       firstName: user.firstName,
-//       lastName: user.lastName,
-//       image: user.image,
-//       profileSetup: user.profileSetup,
-//       color: user.color,
-//     });
-//   } catch (err) {
-//     console.log("this is err:", err);
-//     return res.status(500).send("Internal server error");
-//   }
-// };
-// export const UpdateImage = async (req, res, next) => {
-//   try {
-//     const { userId } = req;
-//     const userdata = await User.findById(req.userId);
-
-//     if (!userdata) {
-//       return res.status(404).json({
-//         message: "User with the given id not found!",
-//       });
-//     }
-
-//     if (!req.file) {
-//       return res.status(400).json({
-//         message: "File is requred!",
-//       });
-//     }
-
-//     const date = Date.now();
-//     let fileName = "uploads/profiles/" + date + req.file.originalname;
-//     renameSync(req.file.path, fileName);
-
-//     const updatedUser = await User.findByIdAndUpdate(
-//       userId,
-//       {
-//         image: fileName,
-//       },
-//       { new: true, runValidators: true }
-//     );
-
-//     return res.status(200).json({
-//       image: updatedUser.image,
-//       message: "Image Uploaded Successfully!",
-//     });
-//   } catch (err) {
-//     console.log("this is err:", err);
-//     return res.status(500).send("Internal server error");
-//   }
-// };
-// export const RemoveProfileImage = async (req, res, next) => {
-//   try {
-//     const { userId } = req;
-
-//     const user = await User.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).json({
-//         message: "User with the given id not found!",
-//       });
-//     }
-
-//     if (user.image) {
-//       unlinkSync(user.image);
-//     }
-
-//     user.image = null;
-
-//     await user.save();
-
-//     return res.status(200).json({
-//       message: "image removed",
-//     });
-//   } catch (err) {
-//     console.log("this is err:", err);
-//     return res.status(500).send("Internal server error");
-//   }
-// };
-export const Logout = async (req, res, next) => {
+export const UpdateProfile = async (req, res, next) => {
   try {
-    //  res.cookie("jwt","",{maxAge:1, secure:true, sameSite:"None"})
+    const { avatar } = req.body;
+
+    if (!avatar) {
+      return res.status(400).json({
+        message: "Avatar is required!",
+      });
+    }
+
+    const userdata = await User.findByIdAndUpdate(
+      req.userId,
+      { avatar: avatar },
+      { new: true, runValidators: true }
+    );
+
     return res.status(200).json({
-      status: "success",
-      message: "Logged out successfully",
+      avatar: userdata.avatar,
     });
   } catch (err) {
     console.log("this is err:", err);
     return res.status(500).send("Internal server error");
   }
 };
+
+export const UpdateUsername = async (req, res, next) => {
+  try {
+    const { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({
+        message: "Username is required!",
+      });
+    }
+
+    const existingUser = await User.findOne({ username: username });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "Username already exists!",
+      });
+    }
+
+    const userdata = await User.findByIdAndUpdate(
+      req.userId,
+      { username: username },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json({
+      username: userdata.username,
+    });
+  } catch (err) {
+    console.log("this is err:", err);
+    return res.status(500).send("Internal server error");
+  }
+};
+
+export const UpdatePin = async (req, res, next) => {
+  try {
+    const { oldPin, newPin } = req.body;
+
+    if (!oldPin || !newPin) {
+      return res.status(400).json({
+        message: "Old Pin and New Pin is required!",
+      });
+    }
+
+    const existingUser = await User.findOne({ _id: req.userId });
+    console.log("This is existing user", existingUser);
+
+    const passwordCompare = await compare(oldPin, existingUser.pin);
+
+    console.log("This is password compare", passwordCompare);
+
+    if (!passwordCompare) {
+      return res.status(400).json({
+        message: "Enter correct credentials",
+      });
+    }
+
+    existingUser.pin = newPin;
+    await existingUser.save();
+
+    return res.status(200).json({
+      message: "Pin Updated Successfully!",
+    });
+  } catch (err) {
+    console.log("this is err:", err);
+    return res.status(500).send("Internal server error");
+  }
+};
+
+export const UpdateDissapearingMessages = async (req, res, next) => {
+  const { dissappearingMessages } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      { dissappearingMessages: dissappearingMessages },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json({
+      message: "Disappearing messages updated successfully",
+      dissappearingMessages: updatedUser.dissappearingMessages,
+    });
+  } catch (err) {
+    console.log("this is err:", err);
+    return res.status(500).send("Internal server error");
+  }
+};
+
+// export const Logout = async (req, res, next) => {
+//   try {
+//     //  res.cookie("jwt","",{maxAge:1, secure:true, sameSite:"None"})
+//     return res.status(200).json({
+//       status: "success",
+//       message: "Logged out successfully",
+//     });
+//   } catch (err) {
+//     console.log("this is err:", err);
+//     return res.status(500).send("Internal server error");
+//   }
+// };

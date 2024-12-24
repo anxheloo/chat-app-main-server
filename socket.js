@@ -6,8 +6,7 @@ import Channel from "./models/ChannelModel.js";
 const setupSocket = (server) => {
   const io = new ServerIOSocket(server, {
     cors: {
-      origin: process.env.ORIGIN,
-      // origin: "*",
+      origin: "*",
       methods: ["GET", "POST"],
     },
     pingTimeout: 10000, // Disconnect if no heartbeat within 10 seconds
